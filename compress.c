@@ -29,7 +29,7 @@ int main()
 
     for (int i = 1; i <= 4; ++i)
     { byte = getc(fp); printf("%x \t", byte); header += byte; }
-    printf("\n::end of BMP header::\n\n");
+    printf("\n::end of BMP header::\n");
 
     dib_header = header - bmp_header;
     printf("\n::begin of DIB header (%d)::\n", dib_header);
