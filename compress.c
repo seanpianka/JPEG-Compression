@@ -7,8 +7,7 @@ const short IMAGE_HEIGHT = 600;
 int main()
 {
     unsigned char image[IMAGE_WIDTH * IMAGE_HEIGHT][3];
-    unsigned char byte = 0, count = 0,
-                  header = 0, dib_header = 0, bmp_header = 14;
+    unsigned char byte = 0, header = 0, dib_header = 0, bmp_header = 14;
     FILE *fp;
 
     //fp = fopen("./boat.bmp", "rb");
@@ -45,24 +44,28 @@ int main()
     }
     printf("::end of DIB header::\n\n");
 
-    printf("Press enter to begin reading pixels...");
+    printf("Press enter to begin reading from pixel array...");
     getchar();
 
     for (int i = 0; i < IMAGE_WIDTH * IMAGE_HEIGHT; ++i)
     {
-        image[i][2] == getc(fp);
-        image[i][1] == getc(fp);
-        image[i][0] == getc(fp);
+        image[i][2] = getc(fp);
+        image[i][1] = getc(fp);
+        image[i][0] = getc(fp);
         printf("Pixel %d : [%x, %x, %x]\n", i+1,
                                             image[i][0],
                                             image[i][1],
                                             image[i][2]);
+        byte = getc(fp); byte = getc(fp); // ignore 4 byte padding (for now)
+
         if ((i+1) % 500 == 0)
         {
             printf("Press enter to begin reading pixels...");
             getchar();
         }
     }
+
+    fclose(fp);
 
     return 0;
 }
