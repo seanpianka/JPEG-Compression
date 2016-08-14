@@ -10,7 +10,7 @@ int read_bmp_bytes(unsigned char image[][3], const char* t_image_name);
 int main()
 {
     unsigned char image[IMAGE_WIDTH * IMAGE_HEIGHT][3];
-    if (read_bmp_bytes(image, "colors.bmp") != 0)
+    if (read_bmp_bytes(image, "colors2.bmp") != 0)
     {
         printf("Failed to read byte data from BMP file. Exiting.\n");
         return 0;
@@ -19,11 +19,27 @@ int main()
     return 0;
 }
 
+void read_bytes(unsigned int num_bytes, FILE* fp, unsigned int* storage)
+{
+    unsigned int byte;
+    for (unsigned int i = 1; i <= num_bytes; ++i)
+    { byte = getc(fp); printf("%x \t", byte); if (storage) *storage += byte; }
+    printf("\n");
+}
+
 int read_bmp_bytes(unsigned char image[][3], const char* t_image_name)
 {
-    unsigned char byte = 0, header = 0, dib_header = 0, bmp_header = 14;
+    unsigned char byte = 0,
+                  header = 0,
+                  dib_header = 0,
+                  bmp_header = 14,
+                  bitmap_width = 0,
+                  bitmap_height = 0,
+                  color_planes_count = 0,
+                  bits_per_pixel = 0;
+    unsigned int pixel_array_size = 0;
     FILE *fp;
-    char* image_name = (char*)malloc((strlen(t_image_name) + 3) * sizeof(char*));
+    char* image_name = (char*)malloc((strlen(t_image_name) + 3) * sizeof(char));
     strcpy(image_name, "./");
     strcat(image_name, t_image_name);
 
@@ -33,63 +49,112 @@ int read_bmp_bytes(unsigned char image[][3], const char* t_image_name)
 
     if (!fp) { printf("Error opening image. Exiting.\n"); return -1; }
 
+    //=========================================================================
+    // BMP Header
+    //=========================================================================
     printf("\n::begin of BMP header (%d)::\n", bmp_header);
-    for (int i = 1; i <= 2; ++i)
-    { byte = getc(fp); printf("%x \t", byte); }
-    printf("\n");
 
-    for (int i = 1; i <= 4; ++i)
-    { byte = getc(fp); printf("%x \t", byte); }
-    printf("\n");
+    // ID Field
+    read_bytes(2, fp, NULL);
 
-    for (int i = 1; i <= 4; ++i)
-    { byte = getc(fp); printf("%x \t", byte); }
-    printf("\n");
+    // Size of the BMP file
+    read_bytes(4, fp, NULL);
 
-    for (int i = 1; i <= 4; ++i)
-    { byte = getc(fp); printf("%x \t", byte); header += byte; }
-    printf("\n::end of BMP header::\n");
+    // Application Specific
+    read_bytes(2, fp, NULL);
 
+    // Application Specific
+    read_bytes(2, fp, NULL);
+
+    // Offset where the pixel array (bitmap data) can be found
+    read_bytes(4, fp, &header);
+
+    printf("::end of BMP header::\n");
+
+    //=========================================================================
+    // DIB Header
+    //=========================================================================
+    // Number of bytes in the DIB header (from this point)
     dib_header = header - bmp_header;
+
     printf("\n::begin of DIB header (%d)::\n", dib_header);
-    for (int i = 1; i <= dib_header; ++i)
+
+    // Number of bytes in the DIB header (from this point)
+    read_bytes(4, fp, NULL);
+
+    // Width of the bitmap in pixels
+    read_bytes(4, fp, NULL);
+
+    // Height of the bitmap in pixels. Positive for bottom to top pixel order.
+    read_bytes(4, fp, NULL);
+
+    // Number of color planes being used
+    read_bytes(2, fp, &color_planes_count);
+
+    // Number of bits per pixel
+    read_bytes(2, fp, &bits_per_pixel);
+
+    // BI_RGB, no pixel array compression used
+    read_bytes(4, fp, NULL);
+
+    // Size of the raw bitmap data (including padding)
+    read_bytes(4, fp, &pixel_array_size);
+
+    // Print resolution of the image
+    // Pixels/meter horizontal
+    read_bytes(4, fp, NULL);
+    // Pixels/meter vertical
+    read_bytes(4, fp, NULL);
+
+    // Number of colors in the palette
+    read_bytes(4, fp, NULL);
+
+    // Number of *important* colors in the palette
+    // 0 means all colors are important
+    read_bytes(4, fp, NULL);
+
+    // for 32-bit RGB bmp files
+    if (dib_header > 40)
     {
-        byte = getc(fp);
-        printf("%x\t", byte);
-        if (i % 4 ==0)
-        {
-            printf("\n");
-        }
+        // Red channel bit mask (valid because BI_BITFIELDS is specified)
+        read_bytes(4, fp, NULL);
+        // Green channel bit mask (valid because BI_BITFIELDS is specified)
+        read_bytes(4, fp, NULL);
+        // Blue channel bit mask (valid because BI_BITFIELDS is specified)
+        read_bytes(4, fp, NULL);
+        // Alpha channel bit mask
+        read_bytes(4, fp, NULL);
+        // LCS_WINDOWS_COLOR_SPACE
+        read_bytes(4, fp, NULL);
+        // Color space endpoints, unused for LCS "Win" or "sRGB"
+        read_bytes(36, fp, NULL);
+        // 0 Red Gamma, unused for LCS "Win" or "sRGB"
+        read_bytes(4, fp, NULL);
+        // 0 Green Gamma, unused for LCS "Win" or "sRGB"
+        read_bytes(4, fp, NULL);
+        // 0 Blue Gamma, unused for LCS "Win" or "sRGB"
+        read_bytes(4, fp, NULL);
     }
+
+    if (dib_header > 108)
+    {
+        printf("Unknown file format. Exiting.\n");
+        return -2;
+    }
+
     printf("::end of DIB header::\n\n");
 
-    printf("Press enter to begin reading from pixel array...");
-    getchar();
+    //=========================================================================
+    // Pixel Array
+    //=========================================================================
+    printf("::begin of pixel array (%d)::\n", pixel_array_size);
 
-    for (int i = 0; i < 8; i++)
+    for (int i = 0; i < pixel_array_size; i += 4)
     {
-        printf("[%d]:\t%x\t%x\t%x\n", i+1, getc(fp), getc(fp), getc(fp));
+        read_bytes(4, fp, NULL);
     }
 
-    /*
-    for (int i = 0; i < IMAGE_WIDTH * IMAGE_HEIGHT * 50; ++i)
-    {
-        image[i][2] = getc(fp);
-        image[i][1] = getc(fp);
-        image[i][0] = getc(fp);
-        printf("Pixel %d : [%x, %x, %x]\n", i+1,
-                                            image[i][0],
-                                            image[i][1],
-                                            image[i][2]);
-        //byte = getc(fp); byte = getc(fp); // ignore 4 byte padding (for now)
-
-        if ((i+1) % 500 == 0)
-        {
-            printf("Press enter to begin reading pixels...");
-            getchar();
-        }
-    }
-    */
+    printf("::end of pixel array::\n");
 
     fclose(fp);
     return 0;
