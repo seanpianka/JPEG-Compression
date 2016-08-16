@@ -1,0 +1,42 @@
+::begin of BMP header (14)::
+42 	4d 	
+8a 	0 	0 	0 	
+0 	0 	
+0 	0 	
+7a 	0 	0 	0 	
+::end of BMP header::
+
+::begin of DIB header (108)::
+6c 	0 	0 	0 	
+2 	0 	0 	0 	
+2 	0 	0 	0 	
+1 	0 	
+18 	0 	
+0 	0 	0 	0 	
+10 	0 	0 	0 	
+13 	b 	0 	0 	
+13 	b 	0 	0 	
+0 	0 	0 	0 	
+0 	0 	0 	0 	
+42 	47 	52 	73 	
+0 	0 	0 	0 	
+0 	0 	0 	0 	
+0 	0 	0 	0 	
+0 	0 	0 	0 	
+0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	2 	0 	0 	0 	
+0 	0 	0 	0 	
+0 	0 	0 	0 	
+0 	0 	0 	0 	
+::end of DIB header::
+
+Bits per pixel: 0x18
+Color Planes: 0x1
+Bitmap Width: 0x2
+Bitmap Height: 0x2
+
+::begin of pixel array (16)::
+1 	1 	fe 	ff 	
+fe 	fe 	0 	0 	
+ff 	0 	0 	1 	
+fe 	0 	0 	0 	
+::end of pixel array::
