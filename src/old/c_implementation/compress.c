@@ -1,27 +1,68 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
+#include <ctype.h>
 
-const short IMAGE_WIDTH = 2;
-const short IMAGE_HEIGHT = 2;
-const char* IMAGE_NAME = "colors2.bmp";
-//const char* IMAGE_NAME = "boat.bmp";
+
+typedef struct
+{
+    uint8_t (*pixel_array)[3];
+    uint16_t height, width;
+    char*
+} Image;
 
 int read_bmp_bytes(unsigned char image[][3], const char* t_image_name);
+void display_error(uint8_t error_code, const char* error_msg);
+void read_bytes(unsigned int num_bytes, FILE* fp, unsigned int* storage);
 
-int main()
+Image* Image_RGB_new(uint8_t (*t_pixels)[3], uint16_t t_height, uint16_t width);
+void Image_RGB_del(Image* img);
+
+int main(int argc, char** argv)
 {
-    unsigned char image[IMAGE_WIDTH * IMAGE_HEIGHT][3];
-    if (read_bmp_bytes(image, IMAGE_NAME) != 0)
+    uint8_t response_code = 0;
+    Image* bmp = Image_RGB_new(NULL, 0, 0);
+
+    // BMP image filename must be provided as only argument when executing
+    if (argc != 2)
     {
-        printf("Failed to read byte data from BMP file. Exiting.\n");
-        return 0;
+        printf("Incorrect usage. ./compress.x [FILENAME]. Exiting.\n");
+    }
+
+    if (response_code = read_bmp_bytes(image, argv[1]))
+    {
+        display_error(response_code, "Failed to read byte data from BMP file.");
+        return EXIT_FAILURE;
     };
 
-    return 0;
+    // Do further processing with new pixel array stored in "image"
+    free(bmp);
+    return EXIT_SUCCESS;
 }
 
-void read_bytes(unsigned int num_bytes, FILE* fp, unsigned int* storage)
+Image* Image_RGB_new(uint8_t (*t_pixels)[3], uint16_t t_height, uint16_t width);
+{
+    Image* img = malloc(sizeof(Image));
+
+    img->pixel_array = t_pixels      ? t_pixels : NULL;
+    img->height      = t_height >= 0 ? t_height : 0;
+    img->width       = t_width  >= 0 ? t_width  : 0;
+
+    return img;
+}
+
+void Image_RGB_del(Image* img)
+{
+    free(img->pixel_array);
+}
+
+void display_error(uint8_t error_code, const char* error_msg)
+{
+    printf("ERROR (%d): %s.\n", error_code, error_msg);
+}
+
+void read_bytes(uint8_t num_bytes, FILE* fp, uint8_t* storage)
 {
     unsigned int byte;
     for (unsigned int i = 1; i <= num_bytes; ++i)
@@ -29,16 +70,16 @@ void read_bytes(unsigned int num_bytes, FILE* fp, unsigned int* storage)
     printf("\n");
 }
 
-int read_bmp_bytes(unsigned char image[][3], const char* t_image_name)
+int read_bmp_bytes(Image* bmp, const char* t_image_name)
 {
-    unsigned char header = 0,
-                  dib_header = 0,
-                  bmp_header = 14,
-                  bitmap_width = 0,
-                  bitmap_height = 0,
-                  color_planes_count = 0,
-                  bits_per_pixel = 0;
-    unsigned int pixel_array_size = 0;
+    uint8_t header = 0,
+            dib_header = 0,
+            bmp_header = 14,
+            bitmap_width = 0,
+            bitmap_height = 0,
+            color_planes_count = 0,
+            bits_per_pixel = 0;
+    uint8_t pixel_array_size = 0;
 
     char* image_name = (char*)malloc((strlen(t_image_name) + 3) * sizeof(char));
     strcpy(image_name, "./");
@@ -154,7 +195,7 @@ int read_bmp_bytes(unsigned char image[][3], const char* t_image_name)
     //=========================================================================
     printf("::begin of pixel array (%d)::\n", pixel_array_size);
 
-    for (int i = 0; i < pixel_array_size; i += 4)
+    for (uint8_t i = 0; i < pixel_array_size; i += 4)
     {
         read_bytes(4, fp, NULL);
     }
