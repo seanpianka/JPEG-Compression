@@ -30,7 +30,7 @@ protected:
               uint8_t green = 0,
               uint8_t blue  = 0,
               uint8_t alpha = 255)
-        : red_(red), green_(green), blue_(blue_), alpha_(alpha) {}
+        : red_(red), green_(green), blue_(blue), alpha_(alpha) {}
 
     private:
         uint8_t red_;
@@ -46,11 +46,11 @@ public:
         height_ = 0;
 
     }
-    virtual ~Image();
+    virtual ~Image() {}
     virtual bool load_from_file(std::string filename = "")=0;
 
 protected:
-    std::vector<std::vector<Pixel>> pixel_array_;
+    std::vector<std::vector<Pixel> > pixel_array_;
     uint16_t width_;
     uint16_t height_;
 };
@@ -67,9 +67,14 @@ public:
         properties["bitmap_height"] = 0;
         properties["color_planes"] = 0;
         properties["bits_per_pixel"] = 0;
+
+        if (!filename.empty())
+        {
+            load_from_file(filename);
+        }
     }
 
-    bool load_from_file(std::string filename = "")
+    bool load_from_file(std::string filename)
     {
         std::ifstream fp;
         fp.open(filename.c_str());
@@ -199,11 +204,16 @@ public:
     }
 
 protected:
-    void read_bytes(uint16_t num_bytes, std::ifstream& fp, uint16_t* store)
+    void read_bytes(uint16_t num_bytes, std::ifstream& fp,
+                    uint16_t* store,    bool print = false)
     {
         for (uint16_t i = 1, byte = 0; i <= num_bytes; ++i)
-        { byte = fp.get(); printf("%x\t", byte); if (store) *store += byte; }
-        printf("\n");
+        {
+            byte = fp.get();
+            if (print) printf("%x\t", byte);
+            if (store) *store += byte;
+        }
+        if (print) printf("\n");
     }
 
     std::unordered_map<std::string, uint16_t> properties;

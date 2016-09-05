@@ -1,0 +1,17 @@
+{
+    "JPEG": {
+        "magic": "FF D8 FF"
+    },
+    "PNG": {
+        "magic": "89 50 4E 47 0D 0A 1A 0A"
+    },
+    "BMP": {
+        "magic": "42 4D"
+    },
+    "GIF": {
+        "magic": "47 49 46 38"
+    },
+    "TIF", {
+        "magic": "49 49"
+    }
+}
