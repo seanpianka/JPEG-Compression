@@ -42,6 +42,8 @@ protected:
 public:
     Image(std::string filename = "")
     {
+        width_ = 0;
+        height_ = 0;
 
     }
     virtual ~Image();
@@ -56,6 +58,17 @@ protected:
 class BMP: public Image
 {
 public:
+    BMP(std::string filename = "") : Image(filename)
+    {
+        properties["header_size"] = 0;
+        properties["dib_header_size"] = 0;
+        properties["bmp_header_size"] = 0;
+        properties["bitmap_width"] = 0;
+        properties["bitmap_height"] = 0;
+        properties["color_planes"] = 0;
+        properties["bits_per_pixel"] = 0;
+    }
+
     bool load_from_file(std::string filename = "")
     {
         std::ifstream fp;
@@ -185,26 +198,17 @@ public:
         return true;
     }
 
-    BMP(std::string filename = "") : Image(filename)
-    {
-        properties["header_size"] = 0;
-        properties["dib_header_size"] = 0;
-        properties["bmp_header_size"] = 0;
-        properties["bitmap_width"] = 0;
-        properties["bitmap_height"] = 0;
-        properties["color_planes"] = 0;
-        properties["bits_per_pixel"] = 0;
-    }
-
 protected:
     void read_bytes(uint16_t num_bytes, std::ifstream& fp, uint16_t* store)
     {
         for (uint16_t i = 1, byte = 0; i <= num_bytes; ++i)
-        { fp.get(byte); printf("%x\t", byte); if (store) *store += byte; }
+        { byte = fp.get(); printf("%x\t", byte); if (store) *store += byte; }
         printf("\n");
     }
 
     std::unordered_map<std::string, uint16_t> properties;
+};
+
 };
 
 #endif

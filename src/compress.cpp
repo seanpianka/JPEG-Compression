@@ -9,7 +9,9 @@ int main(int argc, char** argv)
         std::cout << "Incorrect usage. ./compress.x [FILENAME]. Exiting.\n";
     }
 
-    pianka::BMP img("colors2.bmp");
-    img.compress();
-    img.output("colors2.jpg");
+    seanpianka::BMP img("colors2.bmp");
+    //img.compress();
+    //img.output("colors2.jpg");
+
+    return 0;
 }
