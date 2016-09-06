@@ -38,6 +38,7 @@ protected:
         uint8_t blue_;
         uint8_t alpha_;
     };
+    std::unordered_map<std::string, uint16_t> properties;
 
 public:
     Image(std::string filename = "")
@@ -50,6 +51,18 @@ public:
     virtual bool load_from_file(std::string filename = "")=0;
 
 protected:
+    void read_bytes(uint16_t num_bytes, std::ifstream& fp,
+                    uint16_t* store,    bool print = true)
+    {
+        for (uint16_t i = 1, byte = 0; i <= num_bytes; ++i)
+        {
+            byte = fp.get();
+            if (print) printf("%x\t", byte);
+            if (store) *store += byte;
+        }
+        if (print) printf("\n");
+    }
+
     std::vector<std::vector<Pixel> > pixel_array_;
     uint16_t width_;
     uint16_t height_;
@@ -202,21 +215,6 @@ public:
 
         return true;
     }
-
-protected:
-    void read_bytes(uint16_t num_bytes, std::ifstream& fp,
-                    uint16_t* store,    bool print = false)
-    {
-        for (uint16_t i = 1, byte = 0; i <= num_bytes; ++i)
-        {
-            byte = fp.get();
-            if (print) printf("%x\t", byte);
-            if (store) *store += byte;
-        }
-        if (print) printf("\n");
-    }
-
-    std::unordered_map<std::string, uint16_t> properties;
 };
 
 };
