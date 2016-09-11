@@ -8,20 +8,24 @@
 #include <iostream>
 #include <fstream>
 #include <unordered_map>
+#include "json/src/json.hpp"
 
 namespace seanpianka
 {
 
+class Image;
 class Jpegify
 {
 public:
-    Jpegify()
+    Jpegify(Image* image)
     {
     }
 };
 
 class Image
 {
+    using strstrmap = std::unordered_map<std::string, std::string>;
+
 protected:
     struct Pixel
     {
@@ -38,7 +42,11 @@ protected:
         uint8_t blue_;
         uint8_t alpha_;
     };
+    static const std::unordered_map<std::string, strstrmap> IMAGE_CONSTS;
     std::unordered_map<std::string, uint16_t> properties;
+    std::vector<std::vector<Pixel> > pixel_array_;
+    uint16_t width_;
+    uint16_t height_;
 
 public:
     Image(std::string filename = "")
@@ -62,10 +70,6 @@ protected:
         }
         if (print) printf("\n");
     }
-
-    std::vector<std::vector<Pixel> > pixel_array_;
-    uint16_t width_;
-    uint16_t height_;
 };
 
 class BMP: public Image
@@ -215,6 +219,14 @@ public:
 
         return true;
     }
+};
+
+const std::unordered_map<std::string, Image::strstrmap> Image::IMAGE_CONSTS = {
+    { "JPG", {{ "magic", "FF D8 FF"                }} },
+    { "PNG", {{ "magic", "89 50 4E 47 0D 0A 1A 0A" }} },
+    { "BMP", {{ "magic", "42 4D"                   }} },
+    { "GIF", {{ "magic", "47 49 46 38"             }} },
+    { "TIF", {{ "magic", "49 49"                   }} }
 };
 
 };
